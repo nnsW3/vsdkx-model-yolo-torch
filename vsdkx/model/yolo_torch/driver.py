@@ -159,7 +159,7 @@ class YoloTorchDriver(ModelDriver):
         max_nms = 30000  # maximum number of boxes into torchvision.ops.nms()
 
         multi_label = (prediction.shape[2] - 5) > 1
-        output = [torch.zeros((0, 6), device=prediction._device)] * \
+        output = [torch.zeros((0, 6), device=prediction.device)] * \
                  prediction.shape[0]
 
         for xi, x in enumerate(prediction):  # image index, image inference
