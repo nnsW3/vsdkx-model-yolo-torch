@@ -22,10 +22,6 @@ class YoloTorchDriver(ModelDriver):
         self._device = model_settings['device']
         self._yolo = torch.hub.load('ultralytics/yolov5', 'custom',
                                     path=model_config['model_path'])
-        self._text_thickness = drawing_config['text_thickness']
-        self._text_fontscale = drawing_config['text_fontscale']
-        self._text_color = drawing_config['text_color']
-        self._rectangle_color = drawing_config['rectangle_color']
 
     def inference(self, image: ndarray) -> Inference:
         """
