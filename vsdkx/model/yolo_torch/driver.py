@@ -13,7 +13,6 @@ class YoloTorchDriver(ModelDriver):
     def __init__(self, model_settings: dict, model_config: dict,
                  drawing_config: dict):
         super().__init__(model_settings, model_config, drawing_config)
-        self._input_shape = model_config['input_shape']
         self._filter_classes = model_config.get('filter_class_ids', [])
         self._classes_len = model_config['classes_len']
         self._target_shape = model_settings['target_shape']
@@ -35,7 +34,8 @@ class YoloTorchDriver(ModelDriver):
                 """
 
         # Resize the original image for inference
-        resized_image = self._resize_img(image, self._input_shape)
+        input_shape = image.shape
+        resized_image = self._resize_img(image, input_shape)
 
         inf_start = time.perf_counter()
         # Run the inference
@@ -47,7 +47,7 @@ class YoloTorchDriver(ModelDriver):
 
         for pred in y:
             boxes, scores, classes = pred[:, :4], pred[:, 4:5], pred[:, 5:6]
-            boxes = self._scale_boxes(boxes, self._input_shape,
+            boxes = self._scale_boxes(boxes, input_shape,
                                       self._target_shape)
 
         result_boxes = []
