@@ -24,14 +24,14 @@ class YoloTorchDriver(ModelDriver):
 
     def inference(self, image: ndarray) -> Inference:
         """
-                Driver function for object detection inference
+        Driver function for object detection inference
 
-                Args:
-                    image (np.array): 3D image array
+        Args:
+            image (np.array): 3D image array
 
-                Returns:
-                    (Inference): the result of ai
-                """
+        Returns:
+        (Inference): the result of ai
+        """
 
         # Resize the original image for inference
         resized_image = self._resize_img(image, self._input_shape)
