@@ -1,8 +1,8 @@
 ### Model Settings
 ```yaml
-conf_thresh:
-iou_thresh:
-device:
+conf_thresh: 0.5, # Float class confidence threshold
+iou_thresh: 0.4, # Float Intersection of Union threshold
+device: 'cpu', # Device string used for pytorch (options: 'cpu'| 'gpu')
 ```
 
 ### Model Config
