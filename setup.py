@@ -16,6 +16,7 @@ setup(
         'opencv-python~=4.2.0.34',
         'torchvision>=0.8.1',
         'numpy==1.18.5',
+        'pandas'
     ],
     version='1.0',
 )
