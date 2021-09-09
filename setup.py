@@ -17,7 +17,8 @@ setup(
         'torchvision>=0.8.1',
         'numpy==1.18.5',
         'pandas',
-        'tqdm'
+        'tqdm>=4.41.0',
+        'matplotlib>=3.2.2'
     ],
     version='1.0',
 )
