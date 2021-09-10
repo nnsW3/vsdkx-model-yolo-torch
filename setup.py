@@ -15,7 +15,7 @@ setup(
         'torch>=1.7.0',
         'opencv-python~=4.2.0.34',
         'torchvision>=0.8.1',
-        'numpy==1.18.5',
+        'numpy>=1.18.5',
     ],
     version='1.0',
 )
