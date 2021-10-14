@@ -8,7 +8,7 @@ setup(
     namespace_packages=['vsdkx', 'vsdkx.model'],
     packages=find_namespace_packages(include=['vsdkx*']),
     dependency_links=[
-        'git+https://gitlab+deploy-token-485942:VJtus51fGR59sMGhxHUF@gitlab.com/natix/cvison/vsdkx/vsdkx-core.git#egg=vsdkx-core'
+        'git+https://github.com/natix-io/vsdkx-core#egg=vsdkx-core'
     ],
     install_requires=[
         'vsdkx-core',

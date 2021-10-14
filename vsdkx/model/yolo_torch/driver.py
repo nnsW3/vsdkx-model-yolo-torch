@@ -1,6 +1,5 @@
-from numpy import ndarray
 from vsdkx.core.interfaces import ModelDriver
-from vsdkx.core.structs import Inference
+from vsdkx.core.structs import Inference, FrameObject
 import torch
 import time
 import cv2
@@ -22,18 +21,19 @@ class YoloTorchDriver(ModelDriver):
         self._yolo = torch.hub.load('ultralytics/yolov5', 'custom',
                                     path=model_config['model_path'])
 
-    def inference(self, image: ndarray) -> Inference:
+    def inference(self, frame_object: FrameObject) -> Inference:
         """
         Driver function for object detection inference
 
         Args:
-            image (np.array): 3D image array
+            frame_object (FrameObject): Frame object
 
         Returns:
         (Inference): the result of ai
         """
 
         # Resize the original image for inference
+        image = frame_object.frame
         resized_image = self._resize_img(image, self._input_shape)
 
         inf_start = time.perf_counter()
