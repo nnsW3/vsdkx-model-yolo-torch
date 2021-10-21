@@ -1,12 +1,13 @@
-from vsdkx.core.interfaces import ModelDriver
-from vsdkx.core.structs import Inference, FrameObject
-from vsdkx.core.util.model import box_sanity_check
-import torch
-torch.cuda.is_available = lambda : False
 import time
+
 import cv2
 import numpy as np
+import torch
 import torchvision
+from vsdkx.core.interfaces import ModelDriver
+from vsdkx.core.structs import Inference, FrameObject
+
+torch.cuda.is_available = lambda: False
 
 
 class YoloTorchDriver(ModelDriver):
@@ -60,8 +61,6 @@ class YoloTorchDriver(ModelDriver):
                 # Iterate over the predicted bounding boxes and filter
                 #   the boxes with class "person"
                 if c_id in self._filter_classes:
-                    box = box_sanity_check(box, target_shape[0],
-                                           target_shape[1])
                     result_boxes.append(box)
                     result_scores.append(score)
                     result_classes.append(c_id)
