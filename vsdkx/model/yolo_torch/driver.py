@@ -1,11 +1,13 @@
-from numpy import ndarray
-from vsdkx.core.interfaces import ModelDriver
-from vsdkx.core.structs import Inference
-import torch
 import time
+
 import cv2
 import numpy as np
+import torch
 import torchvision
+from vsdkx.core.interfaces import ModelDriver
+from vsdkx.core.structs import Inference, FrameObject
+
+torch.cuda.is_available = lambda: False
 
 
 class YoloTorchDriver(ModelDriver):
@@ -22,18 +24,19 @@ class YoloTorchDriver(ModelDriver):
         self._yolo = torch.hub.load('ultralytics/yolov5', 'custom',
                                     path=model_config['model_path'])
 
-    def inference(self, image: ndarray) -> Inference:
+    def inference(self, frame_object: FrameObject) -> Inference:
         """
         Driver function for object detection inference
 
         Args:
-            image (np.array): 3D image array
+            frame_object (FrameObject): Frame object
 
         Returns:
         (Inference): the result of ai
         """
-
         # Resize the original image for inference
+        image = frame_object.frame
+        target_shape = image.shape
         resized_image = self._resize_img(image, self._input_shape)
 
         inf_start = time.perf_counter()
@@ -47,7 +50,7 @@ class YoloTorchDriver(ModelDriver):
         for pred in y:
             boxes, scores, classes = pred[:, :4], pred[:, 4:5], pred[:, 5:6]
             boxes = self._scale_boxes(boxes, self._input_shape,
-                                      image.shape)
+                                      target_shape)
 
         result_boxes = []
         result_scores = []
