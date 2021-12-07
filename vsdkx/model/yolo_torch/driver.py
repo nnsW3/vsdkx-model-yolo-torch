@@ -41,7 +41,7 @@ class YoloTorchDriver(ModelDriver):
 
         inf_start = time.perf_counter()
         # Run the inference
-        x = self._yolo(resized_image)[0]
+        x = self._yolo(resized_image)
 
         # Run the NMS to get the boxes with the highest confidence
         y = self._process_pred(x)
