@@ -21,8 +21,11 @@ class YoloTorchDriver(ModelDriver):
         self._conf_thresh = model_settings['conf_thresh']
         self._iou_thresh = model_settings['iou_thresh']
         self._device = model_settings['device']
-        self._yolo = torch.hub.load('ultralytics/yolov5', 'custom',
-                                    path=model_config['model_path'])
+        self._model_name = model_config.get('model_name', 'custom')
+        self._model_path = {'path': model_config.get('model_path', None)}
+        self._yolo = torch.hub.load('ultralytics/yolov5',
+                                    self._model_name,
+                                    **self._model_path)
 
     def inference(self, frame_object: FrameObject) -> Inference:
         """
