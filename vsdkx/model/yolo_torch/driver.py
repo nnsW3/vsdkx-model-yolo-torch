@@ -22,7 +22,8 @@ class YoloTorchDriver(ModelDriver):
         self._iou_thresh = model_settings['iou_thresh']
         self._device = model_settings['device']
         self._model_name = model_config.get('model_name', 'custom')
-        self._model_path = {'path': model_config.get('model_path', None)}
+        self._model_path = {} if model_config.get('model_path') is None \
+            else {'path': model_config.get('model_path')}
         self._yolo = torch.hub.load('ultralytics/yolov5',
                                     self._model_name,
                                     **self._model_path)
