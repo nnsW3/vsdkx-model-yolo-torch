@@ -1,9 +1,13 @@
 import unittest
+import numpy as np
+from numpy.core.fromnumeric import shape
 
+from vsdkx.core.structs import FrameObject, Inference
 from vsdkx.model.yolo_torch.driver import YoloTorchDriver
 
 
 class TestDriver(unittest.TestCase):
+    MODEL_DRIVER = None
     
     def test_driver_construction(self):
         
@@ -19,6 +23,24 @@ class TestDriver(unittest.TestCase):
             "device": "cpu"
         }
         
-        model_driver = YoloTorchDriver(model_settings, model_config, drawing_config={})
+        TestDriver.MODEL_DRIVER = YoloTorchDriver(model_settings, model_config, drawing_config={})
         
-        self.assertIsInstance(model_driver, YoloTorchDriver)
+        self.assertIsInstance(TestDriver.MODEL_DRIVER, YoloTorchDriver)
+
+    def test_driver_inference(self):
+        shape =  TestDriver.MODEL_DRIVER._input_shape       
+        shape = shape + (3,)
+
+        frame = np.zeros(shape)
+        frame_object = FrameObject(frame, {})
+
+        inference = TestDriver.MODEL_DRIVER.inference(frame_object)
+        
+        self.assertIsInstance(inference, Inference)
+
+        self.assertEqual(len(inference.boxes), 0)
+        self.assertEqual(len(inference.classes), 0)
+        self.assertEqual(len(inference.scores), 0)
+
+        self.assertEqual(inference.extra, {})
+
