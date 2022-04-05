@@ -1,13 +1,17 @@
 import time
+import logging
 
 import cv2
 import numpy as np
 import torch
 import torchvision
+
 from vsdkx.core.interfaces import ModelDriver
 from vsdkx.core.structs import Inference, FrameObject
 
 torch.cuda.is_available = lambda: False
+
+LOG_TAG = "Yolo Torch Driver"
 
 
 class YoloTorchDriver(ModelDriver):
@@ -15,6 +19,8 @@ class YoloTorchDriver(ModelDriver):
     def __init__(self, model_settings: dict, model_config: dict,
                  drawing_config: dict):
         super().__init__(model_settings, model_config, drawing_config)
+        self._logger = logging.getLogger(LOG_TAG)
+
         self._input_shape = model_config['input_shape']
         self._filter_classes = model_config.get('filter_class_ids', [])
         self._classes_len = model_config['classes_len']
@@ -43,9 +49,11 @@ class YoloTorchDriver(ModelDriver):
         target_shape = image.shape
         resized_image = self._resize_img(image, self._input_shape)
 
-        inf_start = time.perf_counter()
+        predict_start = time.perf_counter()
         # Run the inference
         x = self._yolo(resized_image)
+        self._logger.debug(
+            f"Prediction time - {time.perf_counter() - predict_start}")
 
         # Run the NMS to get the boxes with the highest confidence
         y = self._process_pred(x)
