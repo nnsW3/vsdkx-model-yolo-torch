@@ -13,7 +13,6 @@ setup(
     install_requires=[
         'vsdkx-core',
         'torch>=1.7.0',
-        'opencv-python~=4.2.0.34',
         'torchvision>=0.8.1',
         'pandas',
         'tqdm>=4.41.0',
