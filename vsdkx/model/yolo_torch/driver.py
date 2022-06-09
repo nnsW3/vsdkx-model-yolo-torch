@@ -33,6 +33,8 @@ class YoloTorchDriver(ModelDriver):
         self._yolo = torch.hub.load('ultralytics/yolov5',
                                     self._model_name,
                                     **self._model_path)
+        self._yolo.conf = self._conf_thresh
+        self._yolo.iou = self._iou_thresh
 
     def inference(self, frame_object: FrameObject) -> Inference:
         """
@@ -47,22 +49,23 @@ class YoloTorchDriver(ModelDriver):
         # Resize the original image for inference
         image = frame_object.frame
         target_shape = image.shape
-        resized_image = self._resize_img(image, self._input_shape)
+        # resized_image = self._resize_img(image, self._input_shape)
 
         predict_start = time.perf_counter()
         # Run the inference
-        x = self._yolo(resized_image)
+        x = self._yolo(image)
         self._logger.debug(
             f"Prediction time - {time.perf_counter() - predict_start}")
 
         # Run the NMS to get the boxes with the highest confidence
-        y = self._process_pred(x)
-        boxes, scores, classes = [], [], []
-
-        for pred in y:
-            boxes, scores, classes = pred[:, :4], pred[:, 4:5], pred[:, 5:6]
-            boxes = self._scale_boxes(boxes, self._input_shape,
-                                      target_shape)
+        # y = self._process_pred(x)
+        y = x.pandas().xyxy[0].to_numpy()
+        boxes, scores, classes = y[:, :4], y[:, 4:5], y[:, 5:6]
+        boxes = self._scale_boxes(boxes, self._input_shape,
+                                  target_shape)
+        # for pred in y:
+        #     boxes, scores, classes = pred[:, :4], pred[:, 4:5], pred[:, 5:6]
+        #
 
         result_boxes = []
         result_scores = []
