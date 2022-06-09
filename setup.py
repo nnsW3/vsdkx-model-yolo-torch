@@ -17,8 +17,11 @@ setup(
         'pandas',
         'tqdm>=4.41.0',
         'matplotlib>=3.2.2',
-        'seaborn>=0.11.0'
-        'numpy>=1.18.5'
+        'seaborn>=0.11.0',
+        'numpy>=1.18.5',
+        'sparseml[torch,torchvision] >= 0.12',
+        'onnx>=1.9.0'
+
     ],
     version='1.0',
 )
