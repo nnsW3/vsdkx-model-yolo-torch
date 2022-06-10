@@ -30,7 +30,7 @@ class YoloTorchDriver(ModelDriver):
         self._model_name = model_config.get('model_name', 'custom')
         self._model_path = {} if model_config.get('model_path') is None \
             else {'path': model_config.get('model_path')}
-        self._yolo = torch.hub.load('neuralmagic/yolov5:v0.12',
+        self._yolo = torch.hub.load('ultralytics/yolov5',
                                     self._model_name,
                                     **self._model_path)
         self._yolo.conf = self._conf_thresh
@@ -48,6 +48,8 @@ class YoloTorchDriver(ModelDriver):
         """
         # Resize the original image for inference
         image = frame_object.frame
+        self._logger.debug(
+            f"frame type - {type(image)}")
         target_shape = image.shape
         # resized_image = self._resize_img(image, self._input_shape)
 
