@@ -61,8 +61,6 @@ class YoloTorchDriver(ModelDriver):
         # Run the NMS to get the boxes with the highest confidence
         y = x.pandas().xyxy[0].to_numpy()
         boxes, scores, classes = y[:, :4], y[:, 4:5], y[:, 5:6]
-        boxes = self._scale_boxes(boxes, self._input_shape,
-                                  target_shape)
 
         result_boxes = []
         result_scores = []
@@ -82,28 +80,6 @@ class YoloTorchDriver(ModelDriver):
             result_classes = classes
 
         return Inference(result_boxes, result_classes, result_scores, {})
-
-    def _scale_boxes(self, boxes, input_shape, target_shape):
-        """
-        Scales the boxes to the size of the target image
-
-        Args:
-            boxes (np.array): Array containing the bounding boxes
-            input_shape (tuple): The shape of the resized image
-            target_shape (tuple): The shape of the target image
-
-        Returns:
-            (np.array): np.array with the scaled bounding boxes
-        """
-        gain = min(input_shape[0] / target_shape[0],
-                   input_shape[1] / target_shape[1])
-        pad = (input_shape[1] - target_shape[1] * gain) / 2, \
-              (input_shape[0] - target_shape[0] * gain) / 2
-        boxes[:, [0, 2]] -= pad[0]
-        boxes[:, [1, 3]] -= pad[1]
-        boxes[:, :] /= gain
-
-        return boxes
 
     def _decode_box(self, box):
         """
