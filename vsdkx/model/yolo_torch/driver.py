@@ -62,24 +62,13 @@ class YoloTorchDriver(ModelDriver):
         y = x.pandas().xyxy[0].to_numpy()
         boxes, scores, classes = y[:, :4], y[:, 4:5], y[:, 5:6]
 
-        result_boxes = []
-        result_scores = []
-        result_classes = []
         if len(self._filter_classes) > 0:
-            # Go through the prediction results
-            for box, score, c_id in zip(boxes, scores, classes):
-                # Iterate over the predicted bounding boxes and filter
-                #   the boxes with class "person"
-                if c_id in self._filter_classes:
-                    result_boxes.append(box)
-                    result_scores.append(score)
-                    result_classes.append(c_id)
-        else:
-            result_boxes = boxes
-            result_scores = scores
-            result_classes = classes
+            filtered_classes = list(map(lambda s: s in self._filter_classes, classes))
+            boxes = list(np.array(boxes)[filtered_classes])
+            scores = list(np.array(scores)[filtered_classes])
+            classes = list(np.array(classes)[filtered_classes])
 
-        return Inference(result_boxes, result_classes, result_scores, {})
+        return Inference(boxes, classes, scores, {})
 
     def _decode_box(self, box):
         """
