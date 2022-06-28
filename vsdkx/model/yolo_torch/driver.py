@@ -51,23 +51,18 @@ class YoloTorchDriver(ModelDriver):
         self._logger.debug(
             f"frame type - {type(image)}")
         target_shape = image.shape
-        # resized_image = self._resize_img(image, self._input_shape)
 
         predict_start = time.perf_counter()
         # Run the inference
-        x = self._yolo(image)
+        x = self._yolo(image, size=self._input_shape[0])
         self._logger.debug(
             f"Prediction time - {time.perf_counter() - predict_start}")
 
         # Run the NMS to get the boxes with the highest confidence
-        # y = self._process_pred(x)
         y = x.pandas().xyxy[0].to_numpy()
         boxes, scores, classes = y[:, :4], y[:, 4:5], y[:, 5:6]
         boxes = self._scale_boxes(boxes, self._input_shape,
                                   target_shape)
-        # for pred in y:
-        #     boxes, scores, classes = pred[:, :4], pred[:, 4:5], pred[:, 5:6]
-        #
 
         result_boxes = []
         result_scores = []
@@ -110,30 +105,6 @@ class YoloTorchDriver(ModelDriver):
 
         return boxes
 
-    def _resize_img(self, image, input_shape):
-        """
-        Resize input image to the expected input shape
-
-        Args:
-            image (np.array): 3D numpy array of input image
-            input_shape (tuple): The shape of the input image
-
-        Returns:
-            (array): Resized image
-        """
-
-        image_resized = self._letterbox(image,
-                                        new_shape=input_shape[0], auto=False)[
-            0]
-        image_np = image_resized[:, :, ::-1].transpose(2, 0, 1)
-        image_np = np.ascontiguousarray(image_np)
-        image_np = torch.from_numpy(image_np).to(self._device)
-        image_np = image_np.float()  # uint8 to fp16/32
-        image_np = image_np / 255.0
-        image_np = image_np.unsqueeze(0)
-
-        return image_np
-
     def _decode_box(self, box):
         """
         Decoding boxes from [x, y, w, h] to [x1, y1, x2, y2]
@@ -153,71 +124,6 @@ class YoloTorchDriver(ModelDriver):
         y[:, 3] = box[:, 1] + box[:, 3] / 2  # bottom right y
 
         return y
-
-    def _process_pred(self, prediction):
-        """
-        Processes the prediction results and passes them through NMS
-
-        Args:
-            prediction (np.array): Array with the post-processed
-            inference predictions
-
-        Returns:
-             (np.array): np.array detections with shape
-              nx6 (x1, y1, x2, y2, conf, cls)
-        """
-        # Get candidates with confidence higher than the threshold
-        xc = prediction[..., 4] > self._conf_thresh  # candidates
-
-        # Maximum width and height
-        max_wh = 4096  # (pixels) minimum and maximum box width and height
-        max_nms = 30000  # maximum number of boxes into torchvision.ops.nms()
-
-        multi_label = (prediction.shape[2] - 5) > 1
-        output = [torch.zeros((0, 6), device=prediction.device)] * \
-                 prediction.shape[0]
-
-        for xi, x in enumerate(prediction):  # image index, image inference
-            # Apply constraints
-            x = x[xc[xi]]  # confidence
-
-            # If none remain process next image
-            if not x.shape[0]:
-                continue
-
-            # Compute conf
-            x[:, 5:] *= x[:, 4:5]  # conf = obj_conf * cls_conf
-
-            # Box (center box, center y, width, height) to (x1, y1, x2, y2)
-            box = self._decode_box(x[:, :4])
-
-            # Detections matrix nx6 (xyxy, conf, cls)
-            if multi_label:
-                i, j = (x[:, 5:] > self._conf_thresh).nonzero(as_tuple=False).T
-                x = torch.cat((box[i], x[i, j + 5, None], j[:, None].float()),
-                              1)
-            else:  # best class only
-                conf, j = x[:, 5:].max(1, keepdim=True)
-                x = torch.cat((box, conf, j.float()), 1)[
-                    conf.view(-1) > self._conf_thresh]
-
-            # Check shape
-            n = x.shape[0]  # number of boxes
-            if not n:  # no boxes
-                continue
-            elif n > max_nms:  # excess boxes
-                x = x[x[:, 4].argsort(descending=True)[
-                      :max_nms]]  # sort by confidence
-
-            # Batched NMS
-            c = x[:, 5:6] * max_wh  # classes
-            # boxes (offset by class), scores
-            boxes, scores = x[:, :4] + c, x[:, 4]
-            i = torchvision.ops.nms(boxes, scores, self._iou_thresh)  # NMS
-
-            output[xi] = x[i].detach().cpu().numpy()
-
-        return output
 
     def _letterbox(self,
                    img,
