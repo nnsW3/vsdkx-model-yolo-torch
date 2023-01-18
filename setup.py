@@ -18,7 +18,8 @@ setup(
         'tqdm>=4.41.0',
         'matplotlib>=3.2.2',
         'seaborn>=0.11.0',
-        'numpy>=1.18.5'
+        'numpy>=1.18.5',
+        'IPython'
     ],
     version='1.0',
 )
