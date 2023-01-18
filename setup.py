@@ -10,18 +10,6 @@ setup(
     dependency_links=[
         'git+https://github.com/natix-io/vsdkx-core#egg=vsdkx-core'
     ],
-    tests_require = [
-        'IPython',
-        'psutil',
-        'vsdkx-core',
-        'torch>=1.7.0',
-        'torchvision>=0.8.1',
-        'pandas',
-        'tqdm>=4.41.0',
-        'matplotlib>=3.2.2',
-        'seaborn>=0.11.0',
-        'numpy>=1.18.5'
-    ], 
     install_requires=[
         'vsdkx-core',
         'torch>=1.7.0',
@@ -32,5 +20,9 @@ setup(
         'seaborn>=0.11.0',
         'numpy>=1.18.5',
     ],
+    extras_require = [
+        'IPython',
+        'psutil',
+    ], 
     version='1.0',
 )
