@@ -1,6 +1,6 @@
 # Inference with `YoloV5`
 
-This repository supports loading and inferencing images with differt sizes of `yolov5` both custom and pre-trained models.
+This repository supports loading and inferencing images with different sizes of `yolov5` both custom and pre-trained models.
 
 ### Model profile
 
